@@ -1,0 +1,55 @@
+---
+
+- name: include disable swap task
+  include_tasks: "disable_swap.yml"
+
+- name: include disable selinux task
+  include_tasks: "disable_selinux.yml"
+
+- name: include install docker task
+  include_tasks: "install_docker.yml"
+
+- name: include install k8s task
+  include_tasks: "install_k8s.yml"
+
+- name: include firewalld task
+  include_tasks: "firewalld_k8s.yml"
+
+# initialize
+- name: check if kubernetes has already been initialized.
+  stat:
+    path: /etc/kubernetes/admin.conf
+  register: kubernetes_init_stat
+
+- name: initialize kubernetes master with kubeadm init
+  shell: |
+    kubeadm init
+    mkdir -p /root/.kube
+    cp -i /etc/kubernetes/admin.conf /root/.kube/config
+    chown root. /root/.kube/config
+    kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+  register: kubeadmin_init
+  when: not kubernetes_init_stat.stat.exists
+
+# create token
+- name: get join-command
+  command: kubeadm token create --print-join-command
+  register: kubernetes_join_command_result
+
+- debug:
+    var: kubernetes_join_command_result.stdout
+
+# https://kubernetes.io/docs/reference/access-authn-authz/bootstrap-tokens/
+- set_fact:
+    token: "{{ kubernetes_join_command_result.stdout | regex_search('[a-z0-9]{6}\\.[a-z0-9]{16}') }}"
+
+- name: get cert_hash
+  shell: "openssl x509 -in /etc/kubernetes/pki/ca.crt -pubkey -noout | openssl pkey -pubin -outform DER | openssl dgst -sha256 | awk '{print $2}'"
+  changed_when: false
+  register: cert_hash
+
+- debug:
+    msg: "{{ token }}"
+
+- debug:
+    msg: "{{ cert_hash.stdout }}"

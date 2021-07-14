@@ -1,0 +1,9 @@
+---
+- name: disable swap
+  shell: swapoff -a
+
+- name: remove swap from fstab
+  mount:
+    name: swap
+    fstype: swap
+    state: absent

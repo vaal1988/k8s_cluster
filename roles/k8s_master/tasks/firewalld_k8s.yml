@@ -1,0 +1,40 @@
+---
+- sysctl:
+    name: net.bridge.bridge-nf-call-ip6tables
+    value: 1
+    state: present
+    sysctl_file: /etc/sysctl.d/k8s.conf
+
+- sysctl:
+    name: net.bridge.bridge-nf-call-iptables
+    value: 1
+    state: present
+    sysctl_file: /etc/sysctl.d/k8s.conf
+
+- name: install firewalld
+  yum:
+    name: firewalld
+    state: present
+
+- name: Start and enable service firewalld
+  service:
+    name: firewalld
+    state: started
+    enabled: yes
+
+- name: firewalld rules
+  shell: "sudo firewall-cmd --permanent --add-port={{ item }}"
+  loop:
+    - 6443/tcp
+    - 2379/tcp
+    - 2380/tcp
+    - 10250/tcp
+    - 10251/tcp
+    - 10252/tcp
+    - 10255/tcp
+  notify :
+    - firewalld reload
+
+- modprobe:
+    name: br_netfilter
+    state: present
