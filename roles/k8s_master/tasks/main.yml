@@ -13,7 +13,7 @@
   include_tasks: "install_k8s.yml"
 
 - name: include firewalld task
-  include_tasks: "firewalld_k8s.yml"
+  include_tasks: "firewalld_k8s_master.yml"
 
 # initialize
 - name: check if kubernetes has already been initialized.

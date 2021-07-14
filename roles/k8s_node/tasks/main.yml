@@ -1,1 +1,16 @@
 ---
+
+- name: include disable swap task
+  include_tasks: "disable_swap.yml"
+
+- name: include disable selinux task
+  include_tasks: "disable_selinux.yml"
+
+- name: include install docker task
+  include_tasks: "install_docker.yml"
+
+- name: include install k8s task
+  include_tasks: "install_k8s.yml"
+
+- name: include firewalld task
+  include_tasks: "firewalld_k8s_node.yml"

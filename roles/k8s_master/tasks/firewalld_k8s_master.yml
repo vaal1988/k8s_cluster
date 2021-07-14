@@ -1,4 +1,6 @@
 ---
+# https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#control-plane-node-s
+
 - sysctl:
     name: net.bridge.bridge-nf-call-ip6tables
     value: 1

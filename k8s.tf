@@ -1,7 +1,7 @@
 locals {
   k8s = {
     "master-node"  = { vcpu = "2", memory = "2048", username = "centos", password = "password", grow_disk= "+12G", roles = ["k8s_master"] },
-    # "node-1"       = { vcpu = "1", memory = "1024", username = "centos", password = "password", roles = ["k8s_node"] },
+    "node-1"       = { vcpu = "1", memory = "1024", username = "centos", password = "password", grow_disk= "+12G", roles = ["k8s_node"] },
     # "node-2"       = { vcpu = "1", memory = "1024", username = "centos", password = "password", roles = ["k8s_node"] },
   }
 }
@@ -9,15 +9,15 @@ locals {
 data "template_file" "user_data" {
   for_each = local.k8s
   template = templatefile("templates/user_data.tpl", {
-  username = "${each.value.username}",
-  password = "${each.value.password}"
+  username = each.value.username,
+  password = each.value.password
   })
 }
 
 data "template_file" "meta_data" {
   for_each = local.k8s
   template = templatefile("templates/meta_data.tpl", {
-  hostname = "${each.key}"   
+  hostname = each.key
   })
 }
 
@@ -39,7 +39,7 @@ resource "libvirt_volume" "list" {
   ]
   
   provisioner "local-exec" {
-    command = "sudo qemu-img resize ${libvirt_volume.list[each.key].id} ${each.value.grow_disk}"
+    command = "sudo qemu-img resize ${self.id} ${each.value.grow_disk}"
   }
 
 }
@@ -95,8 +95,8 @@ resource "libvirt_domain" "list" {
 
 }
 
-output "volume_path" {
+output "ipaddresses" {
   value = {
-    for volume_path, volume in libvirt_volume.list : volume_path => volume.id
+    for ip, vm in libvirt_domain.list : ip => vm.network_interface[0].addresses[0]
   }
 }
