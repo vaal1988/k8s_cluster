@@ -1,7 +1,7 @@
 locals {
   k8s = {
-    "master-node"  = { vcpu = "2", memory = "2048", username = "centos", password = "password", grow_disk= "+12G", roles = ["k8s_master"] },
-    "node-1"       = { vcpu = "1", memory = "1024", username = "centos", password = "password", grow_disk= "+12G", roles = ["k8s_node"] },
+    "master-node"  = { vcpu = "2", memory = "4096", username = "centos", password = "password", grow_disk= "+12G", roles = ["k8s_master"] },
+    "node-1"       = { vcpu = "2", memory = "4096", username = "centos", password = "password", grow_disk= "+32G", roles = ["k8s_node"] },
     # "node-2"       = { vcpu = "1", memory = "1024", username = "centos", password = "password", roles = ["k8s_node"] },
   }
 }
