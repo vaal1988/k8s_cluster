@@ -5,18 +5,77 @@
     dest: /etc/yum.repos.d/hashicorp.repo
   register: hashicorprepo
 
-- name: update yum caсhe
-  yum:
-    update_cache: true
-  when: hashicorprepo.changed
-
 - name: install consul
   yum:
     name: consul
     state: present
+    update_cache: yes
+
+- name: consul-config
+  copy:
+    content: |
+      data_dir = "/opt/consul"
+      bind_addr = "0.0.0.0"
+      client_addr = "127.0.0.1"
+      server = true
+      bootstrap = true
+      bootstrap_expect = 1
+      dns_config {
+        only_passing = true
+        enable_truncate = true
+      }
+      client_addr = "0.0.0.0"
+      ui = false
+      leave_on_terminate = true
+      rejoin_after_leave = true
+    dest: /etc/consul.d/consul.hcl
+  when: node_role == "master"
+
+- name: consul-config
+  copy:
+    content: |
+      data_dir = "/opt/consul"
+      bind_addr = "0.0.0.0"
+      client_addr = "127.0.0.1"
+      server = false
+
+      dns_config {
+        only_passing = true
+        enable_truncate = true
+      }
+      client_addr = "0.0.0.0"
+      ui = false
+      leave_on_terminate = true
+      rejoin_after_leave = true
+    dest: /etc/consul.d/consul.hcl
+  when: node_role == "node"
 
 - name: start and enable consul service
   service:
     name: consul
     state: started
     enabled: yes
+
+- name: ip
+  debug:
+    msg: "{{ ansible_host }}"
+
+- set_fact:
+    ipadd: "{{ ansible_host }}"
+
+- name: run local consul agent 
+  shell: |
+    if pgrep -x "consul" > /dev/null
+    then
+      echo "running"
+    else
+      echo "not running"
+      consul agent -data-dir=/tmp/consul -bind 127.0.0.1 </dev/null &>/dev/null &
+    fi
+    sleep 5
+  delegate_to: localhost
+
+- name: run local consul agent 
+  shell: |
+    consul join {{ ipadd }}
+  delegate_to: localhost

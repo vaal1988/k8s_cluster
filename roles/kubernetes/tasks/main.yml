@@ -6,26 +6,26 @@
 - name: include consul task
   include_tasks: "consul.yml"
 
-# - name: include yum upgrade task
-#   include_tasks: "upgrade.yml"
+- name: include yum upgrade task
+  include_tasks: "upgrade.yml"
 
-# - name: include disable swap task
-#   include_tasks: "disable_swap.yml"
+- name: include disable swap task
+  include_tasks: "disable_swap.yml"
 
-# - name: include network task
-#   include_tasks: "network.yml"
+- name: include network task
+  include_tasks: "network.yml"
 
-# - name: include install docker task
-#   include_tasks: "install_docker.yml"
+- name: include install docker task
+  include_tasks: "install_docker.yml"
 
-# - name: include install kubernetes task
-#   include_tasks: "install_kubernetes.yml"
+- name: include install kubernetes task
+  include_tasks: "install_kubernetes.yml"
 
 
-# - name: initialize master task
-#   include_tasks: "initialize_master.yml"
-#   when: node_role == "master"
+- name: initialize master task
+  include_tasks: "initialize_master.yml"
+  when: node_role == "master"
 
-# - name: initialize node task
-#   include_tasks: "initialize_node.yml"
-#   when: node_role == "node"
+- name: initialize node task
+  include_tasks: "initialize_node.yml"
+  when: node_role == "node"

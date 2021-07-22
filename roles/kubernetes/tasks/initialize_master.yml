@@ -55,6 +55,16 @@
 - debug:
     msg: "{{ cert_hash.stdout }}"
 
+- name: add or update token value in key/value consul store
+  consul_kv:
+    key: kubernetes/token
+    value: "{{ token }}"
+
+- name: add or update cert_hash value in key/value consul store
+  consul_kv:
+    key: kubernetes/cert_hash
+    value: "{{ cert_hash.stdout }}"
+
 # - name: allow pods on master
 #   shell: kubectl taint node master-node node-role.kubernetes.io/master:NoSchedule-
 

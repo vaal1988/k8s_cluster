@@ -2,7 +2,7 @@ locals {
   k8s = {
     "master-node"  = { vcpu = "2", memory = "2048", username = "centos", password = "password", grow_disk= "+12G", roles = ["kubernetes"], ansible_vars = "node_role=master"  },
     "node-1"       = { vcpu = "2", memory = "2048", username = "centos", password = "password", grow_disk= "+17G", roles = ["kubernetes"], ansible_vars = "node_role=node"  },
-    "node-2"       = { vcpu = "2", memory = "2048", username = "centos", password = "password", grow_disk= "+17G", roles = ["kubernetes"], ansible_vars = "node_role=node" },
+    # "node-2"       = { vcpu = "2", memory = "2048", username = "centos", password = "password", grow_disk= "+17G", roles = ["kubernetes"], ansible_vars = "node_role=node" },
   }
 }
 
