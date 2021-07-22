@@ -16,10 +16,11 @@
       - containerd.io
       - docker-ce
     state: present
+  notify :
+    - reboot
 
 - name: Start and enable service docker
   service:
     name: docker
+    state: started
     enabled: yes
-  notify :
-    - reboot

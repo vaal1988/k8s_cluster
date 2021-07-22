@@ -1,0 +1,6 @@
+---
+- name: reboot
+  reboot:
+
+- name: firewalld reload
+  shell: firewall-cmd --reload

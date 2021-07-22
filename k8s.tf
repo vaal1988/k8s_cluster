@@ -1,8 +1,8 @@
 locals {
   k8s = {
-    "master-node"  = { vcpu = "2", memory = "4096", username = "centos", password = "password", grow_disk= "+12G", roles = ["k8s_master"] },
-    "node-1"       = { vcpu = "2", memory = "4096", username = "centos", password = "password", grow_disk= "+32G", roles = ["k8s_node"] },
-    # "node-2"       = { vcpu = "1", memory = "1024", username = "centos", password = "password", roles = ["k8s_node"] },
+    "master-node"  = { vcpu = "2", memory = "2048", username = "centos", password = "password", grow_disk= "+12G", roles = ["kubernetes"], ansible_vars = "node_role=master"  },
+    "node-1"       = { vcpu = "2", memory = "2048", username = "centos", password = "password", grow_disk= "+17G", roles = ["kubernetes"], ansible_vars = "node_role=node"  },
+    "node-2"       = { vcpu = "2", memory = "2048", username = "centos", password = "password", grow_disk= "+17G", roles = ["kubernetes"], ansible_vars = "node_role=node" },
   }
 }
 
@@ -88,7 +88,7 @@ resource "libvirt_domain" "list" {
   provisioner "local-exec" {
   command = <<-EOT
   %{ for key in each.value.roles ~}
-  ANSIBLE_HOST_KEY_CHECKING=False ansible all -i '${self.network_interface[0].addresses[0]},' -m include_role -a name=${key} --become --extra-vars 'ansible_user=${each.value.username} ansible_password=${each.value.password}'
+  ANSIBLE_HOST_KEY_CHECKING=False ansible all -i '${self.network_interface[0].addresses[0]},' -m include_role -a name=${key} --become --extra-vars 'ansible_user=${each.value.username} ansible_password=${each.value.password} ${each.value.ansible_vars}'
   %{ endfor ~}
   EOT
   }

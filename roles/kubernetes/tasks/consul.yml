@@ -1,0 +1,22 @@
+---
+- name: add hashicorp repo
+  get_url:
+    url: https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+    dest: /etc/yum.repos.d/hashicorp.repo
+  register: hashicorprepo
+
+- name: update yum caсhe
+  yum:
+    update_cache: true
+  when: hashicorprepo.changed
+
+- name: install consul
+  yum:
+    name: consul
+    state: present
+
+- name: start and enable consul service
+  service:
+    name: consul
+    state: started
+    enabled: yes

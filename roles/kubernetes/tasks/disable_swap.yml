@@ -6,4 +6,3 @@
     state: absent
   notify :
     - reboot
-

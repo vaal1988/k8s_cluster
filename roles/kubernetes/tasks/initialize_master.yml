@@ -1,21 +1,4 @@
 ---
-
-- name: include disable swap task
-  include_tasks: "disable_swap.yml"
-
-- name: include disable selinux task
-  include_tasks: "disable_selinux.yml"
-
-- name: include install docker task
-  include_tasks: "install_docker.yml"
-
-- name: include install k8s task
-  include_tasks: "install_k8s.yml"
-
-- name: include firewalld task
-  include_tasks: "firewalld_k8s_master.yml"
-
-# initialize
 - name: check if kubernetes has already been initialized.
   stat:
     path: /etc/kubernetes/admin.conf
@@ -59,6 +42,7 @@
 # https://kubernetes.io/docs/reference/access-authn-authz/bootstrap-tokens/
 - set_fact:
     token: "{{ kubernetes_join_command_result.stdout | regex_search('[a-z0-9]{6}\\.[a-z0-9]{16}') }}"
+    # global: true
 
 - name: get cert_hash
   shell: "openssl x509 -in /etc/kubernetes/pki/ca.crt -pubkey -noout | openssl pkey -pubin -outform DER | openssl dgst -sha256 | awk '{print $2}'"

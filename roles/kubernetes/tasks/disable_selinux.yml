@@ -1,0 +1,11 @@
+---
+- name: install libselinux-python3
+  yum:
+    name: libselinux-python3
+    state: present
+
+- name: disable selinux
+  selinux:
+    state: disabled
+  notify :
+    - reboot

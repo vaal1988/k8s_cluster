@@ -44,6 +44,20 @@
 # - name: firewalld rules
 #   shell: "sudo firewall-cmd --permanent --add-port={{ item }}"
 #   loop:
+#     - 6443/tcp
+#     - 2379-2380/tcp
+#     - 10250-10252/tcp
+#     - 10255/tcp
+#     - 8472/udp
+#     - 30000-32767/tcp
+#     - 30000-32767/udp
+#   notify :
+#     - firewalld reload
+#   when: node_role == "master"
+
+# - name: firewalld rules
+#   shell: "sudo firewall-cmd --permanent --add-port={{ item }}"
+#   loop:
 #     - 10250/tcp
 #     - 10251/tcp
 #     - 10255/tcp
@@ -52,6 +66,7 @@
 #     - 30000-32767/udp
 #   notify :
 #     - firewalld reload
+#   when: node_role == "node"
 
 # - name: firewalld add-masquerade
 #   shell: "sudo firewall-cmd --add-masquerade --permanent"

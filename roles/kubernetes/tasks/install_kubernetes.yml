@@ -17,7 +17,7 @@
     update_cache: true
   when: kubernetesrepo.changed
 
-- name: Install a list of kube packages 
+- name: install kubelet, kubectl and kubeadm
   yum:
     name:
       - kubelet
@@ -25,7 +25,15 @@
       - kubectl
     state: present
 
+# - name: install kubectl
+#   yum:
+#     name: kubectl
+#     state: present
+#   when: node_role == "master"
+
 - name: enable service kubelet
   service:
     name: kubelet
     enabled: yes
+  notify :
+    - reboot

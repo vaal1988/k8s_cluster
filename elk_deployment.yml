@@ -1,35 +1,206 @@
+#### configs ####
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configsdata
+
+data:
+   config.logstash_pipeline: |
+    input {
+      beats {
+        port => 5044
+      }
+    }
+
+    output {
+      elasticsearch {
+        hosts => ["http://elasticsearch:9200"]
+        index => "%{[@metadata][beat]}-%{[@metadata][version]}" 
+      }
+    }
+
+#### logstash ####
+---
 apiVersion: apps/v1
 kind: Deployment
-metadata:
-  name: elk
-  labels: 
-    app:  elk
 
+metadata:
+  name: logstash
+  labels: 
+    app: elk
 spec:
-  selector:
-    matchLabels:
-      project: elk
   template:
     metadata:
       labels:
-        project: elk
+        service: logstash
+    spec:
+      containers:
+      - name: logstash
+        image: logstash:7.13.3
+        ports:
+        - containerPort: 5044
+        env:
+        - name: LS_JAVA_OPTS
+          value: "-Xmx256m -Xms256m"
+        - name: ELASTIC_HOST
+          value: elasticsearch:9200
+        volumeMounts:
+        - name: configs
+          mountPath: /usr/share/logstash/pipeline/logstash.conf
+          subPath: config.logstash_pipeline
+      volumes:
+      - name: configs
+        configMap:
+          name: config
+  selector:
+    matchLabels:
+      service: logstash
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: logstash-nodeport
+spec:
+  type: NodePort
+  ports:
+  - name:       logstash
+    protocol:   TCP
+    port:       5044
+    nodePort:   30044
+  selector:
+    service: logstash
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: logstash-clusterip
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+  - name:       logstash
+    protocol:   TCP
+    port:       5044
+  selector:
+    service: logstash
+
+#### elasticsearch ####
+---
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: elasticsearch
+  labels: 
+    app: elk
+spec:
+  template:
+    metadata:
+      labels:
+        service: elasticsearch
+    spec:
+      containers:
+      - name: elasticsearch
+        image: elasticsearch:7.13.3
+        ports:
+        - containerPort: 9200
+        env:
+        - name: ES_JAVA_OPTS
+          value: "-Xms512m -Xmx512m"
+        - name: discovery.type
+          value: single-node
+  selector:
+    matchLabels:
+      service: elasticsearch
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch-clusterip
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+  - name:       elasticsearch
+    protocol:   TCP
+    port:       9200
+  selector:
+    service: elasticsearch
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch-nodeport
+spec:
+  type: NodePort
+  ports:
+  - name:       elasticsearch
+    protocol:   TCP
+    port:       9200
+    nodePort:   30092
+  selector:
+    service: elasticsearch
+
+#### kibana ####
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kibana
+  labels: 
+    app: elk
+spec:
+  template:
+    metadata:
+      labels:
+        service: kibana
     spec:
       containers:
 
       - name: kibana
-        image: kibana:7.5.2
+        image: kibana:7.13.3
         ports:
         - containerPort: 5601
         env:
         - name: SERVER_NAME
-          value: "kibana"
+          value: kibana
+        - name: ELASTICSEARCH_HOSTS
+          value: http://elasticsearch:9200
+  selector:
+    matchLabels:
+      service: kibana
 
-      - name: elasticsearch
-        image: elasticsearch:7.5.2
-        ports:
-        - containerPort: 9200
-        env:
-          - name: ES_JAVA_OPTS
-            value: "-Xms512m -Xmx512m"
-          - name: discovery.type
-            value: single-node
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kibana-clusterip
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+  - name:       kibana
+    protocol:   TCP
+    port:       5601
+  selector:
+    service: kibana
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kibana-nodeport
+spec:
+  type: NodePort
+  ports:
+  - name:       kibana
+    protocol:   TCP
+    port:       5601
+    nodePort:   30080
+  selector:
+    service: kibana

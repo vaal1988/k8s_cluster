@@ -27,5 +27,4 @@
 - name: enable service kubelet
   service:
     name: kubelet
-    state: started
     enabled: yes
