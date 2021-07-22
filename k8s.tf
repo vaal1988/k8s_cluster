@@ -74,7 +74,8 @@ resource "libvirt_domain" "list" {
 
   provisioner "remote-exec" {
     inline = [
-      "sudo yum install -y python3",
+      "sudo yum install -y epel-release",
+      "sudo yum install -y python2 python2-pip",
     ]
     connection {
       type                = "ssh"
@@ -85,13 +86,13 @@ resource "libvirt_domain" "list" {
     }
   }
 
-  provisioner "local-exec" {
-  command = <<-EOT
-  %{ for key in each.value.roles ~}
-  ANSIBLE_HOST_KEY_CHECKING=False ansible all -i '${self.network_interface[0].addresses[0]},' -m include_role -a name=${key} --become --extra-vars 'ansible_user=${each.value.username} ansible_password=${each.value.password} ${each.value.ansible_vars}'
-  %{ endfor ~}
-  EOT
-  }
+  # provisioner "local-exec" {
+  # command = <<-EOT
+  # %{ for key in each.value.roles ~}
+  # ANSIBLE_HOST_KEY_CHECKING=False ansible all -i '${self.network_interface[0].addresses[0]},' -m include_role -a name=${key} --become --extra-vars 'ansible_user=${each.value.username} ansible_password=${each.value.password} ${each.value.ansible_vars}'
+  # %{ endfor ~}
+  # EOT
+  # }
 
 }
 
@@ -99,4 +100,9 @@ output "ipaddresses" {
   value = {
     for ip, vm in libvirt_domain.list : ip => vm.network_interface[0].addresses[0]
   }
+  depends_on = [
+    libvirt_domain.list,
+  ]
 }
+
+# https://www.linkbynet.com/produce-an-ansible-inventory-with-terraform

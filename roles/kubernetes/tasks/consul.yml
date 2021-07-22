@@ -1,4 +1,11 @@
 ---
+- name: install python-consul python package
+  pip:
+    name: python-consul
+
+
+
+
 - name: add hashicorp repo
   get_url:
     url: https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
@@ -76,6 +83,5 @@
   delegate_to: localhost
 
 - name: run local consul agent 
-  shell: |
-    consul join {{ ipadd }}
+  shell: consul join {{ ipadd }}
   delegate_to: localhost
