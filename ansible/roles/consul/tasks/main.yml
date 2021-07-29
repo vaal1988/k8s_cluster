@@ -1,0 +1,33 @@
+---
+- name: install python-consul python package
+  pip:
+    name: python-consul
+
+- name: add hashicorp repo
+  get_url:
+    url: https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+    dest: /etc/yum.repos.d/hashicorp.repo
+  register: hashicorprepo
+
+- name: install consul
+  yum:
+    name: consul
+    state: present
+    update_cache: yes
+
+- name: consul-config
+  template:
+    src: consul.j2
+    dest: /etc/consul.d/consul.hcl
+  notify :
+    - consul restart
+
+- name: start and enable consul service
+  service:
+    name: consul
+    state: started
+    enabled: yes
+
+- name: ip
+  debug:
+    msg: "{{ ansible_host }}"

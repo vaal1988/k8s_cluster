@@ -1,0 +1,6 @@
+---
+- hosts: kubernetes_master:kubernetes_node
+
+  roles:
+  - consul
+  - kubernetes

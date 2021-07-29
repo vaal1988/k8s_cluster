@@ -1,0 +1,3 @@
+---
+consul_server: true
+node_role: master

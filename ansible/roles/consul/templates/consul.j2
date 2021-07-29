@@ -1,0 +1,29 @@
+data_dir = "/opt/consul"
+bind_addr = "{{ ansible_default_ipv4.address }}"
+client_addr = "127.0.0.1"
+log_level = "INFO"
+
+{% if consul_server is defined %}
+{% if consul_server == true %}
+server = true
+bootstrap = true
+bootstrap_expect = 1
+{% endif %}
+{% if consul_server == false %}
+server = false
+{% endif %}
+{% else %}
+server = false
+{% endif %}
+
+start_join = [{% for item in groups['all'] %}"{{ hostvars[item].ansible_default_ipv4.address }}"{% if not loop.last %},{% endif %}{% endfor %}]
+retry_join = [{% for item in groups['all'] %}"{{ hostvars[item].ansible_default_ipv4.address }}"{% if not loop.last %},{% endif %}{% endfor %}]
+
+dns_config {
+only_passing = true
+enable_truncate = true
+}
+
+ui = false
+leave_on_terminate = true
+rejoin_after_leave = true
