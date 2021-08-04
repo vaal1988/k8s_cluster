@@ -2,7 +2,7 @@ locals {
   libvirt_vms = {
     "master-node"  = { vcpu = "2", memory = "2048", username = "centos", password = "password", grow_disk= "+12G", groups = ["kubernetes_master"] },
     "node-1"       = { vcpu = "2", memory = "2048", username = "centos", password = "password", grow_disk= "+17G", groups = ["kubernetes_node"] },
-    # "node-2"       = { vcpu = "2", memory = "2048", username = "centos", password = "password", grow_disk= "+17G", groups = ["kubernetes_node"], roles = ["kubernetes"], ansible_vars = "node_role=node" },
+    # "node-2"       = { vcpu = "2", memory = "2048", username = "centos", password = "password", grow_disk= "+17G", groups = ["kubernetes_node"] },
   }
 }
 
