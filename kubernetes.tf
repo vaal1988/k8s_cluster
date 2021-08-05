@@ -103,6 +103,8 @@ resource "libvirt_domain" "list" {
 }
 
 resource "null_resource" "ansible_run" {
+  depends_on = [libvirt_domain.list]
+
   triggers = {
     always_run = "${timestamp()}"
   }
